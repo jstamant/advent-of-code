@@ -14,8 +14,11 @@ def day1(input_file):
 
 
 # Problem: if words overlap, they need to be properly figured out:
-# 'twone' matches as 'one' for the last digit.
+# 'twone' matches as 'one' for the last digit. The other option for
+# overlapping matches is iterating over each index, and using the
+# .match instead of .search
 import regex # this third-party module supports overlapping matches
+
 def day1_part2(input_file):
     sum = 0
     for line in input_file:
