@@ -1,5 +1,7 @@
 # day6.py
 
+import re
+
 # Returns the time and distance of each race in the form
 # [ [<time>, <dist>], [<time>, <dist>], ... ]
 def parse(filename):
@@ -16,13 +18,10 @@ def parse(filename):
 # This is specifically for part 2
 def parse2(filename):
     file = open(filename, 'r')
-    times = file.readline().split()[1:]
-    print(times.join())
-    distances = file.readline().split()[1:]
+    time = int(re.sub("[^\d]", "", file.readline()))
+    distance = int(re.sub("[^\d]", "", file.readline()))
     file.close()
-    data = []
-    for i in range(len(times)): data.append([times[i], distances[i]])
-    return data
+    return [[time, distance]]
 
 # Very rudimentary, but just iterate through all possible races
 def get_number_of_winning_strategies(race_time, record_distance):
@@ -45,6 +44,11 @@ def part1(data):
 # print(part1(data))
 
 # part 1: answer is 840336
-data = parse2("input.txt")
-print(data)
+data = parse("input.txt")
+print(part1(data))
 #print(part1(data))
+
+# part 2: anser is 41382569
+# The challenge here is parsing the string to an integer, which is easy in Python
+data = parse2("input.txt")
+print(part1(data))
