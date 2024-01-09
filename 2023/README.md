@@ -6,4 +6,4 @@ For this year, I'm going to use Python to complete these challenges.
 
 I'm choosing it, because I have a bit of experience with it from around ~2011, and I'd like to brush-up on it since learning so much about computing in the past decade. And it's also great with string manipulation, from what I remember - very easy to translate between numbers and characters.
 
-To run the tests, run `pytest` in the repository's root directory.
+To run the tests, run `pytest` from this directory.
