@@ -16,9 +16,6 @@ def parse(filename):
 # I do a depth-first pathfinding to get the length of the loop.
 # Then, the furthest distance is simply dividing the length by two
 def part1(data):
-    for line in data:
-        print(line)
-
     # Find starting point
     start = -1
     for y in range(len(data)):
@@ -26,59 +23,76 @@ def part1(data):
             if data[y][x] == 'S': start = (x, y)
     print(f"Starting location is at {start}")
 
-    distance = 0
-    stack = [start]
-    visited = []
-    for i in range(len(data)):
-        visited.append([])
-        for j in range(len(data[i])):
-            visited[i].append('.')
     path = []
+    visited = {}
 
-    return find_loop_length(stack, data, visited)
+    try_point(start, path, data, visited)
+    print('Length of the path is', len(path))
+    return len(path) / 2
 
 # Recursive function that returns the length of the connected pipe loop.
-def find_loop_length(stack, graph, visited):
-    point = stack[-1]
-    pipe = graph[point[1]][point[0]]
-    point_visit = visited[point[1]][point[0]]
-    print(point, pipe)
-    # if pipe == 'S' and :
-    #     breakpoint()
-    #     return
-    if point_visit == 'X' or pipe == '.':
-        print("Visited, or invalid pipe. Popping and returning.")
-        stack.pop()
-        return
-    print(point_visit)
+def try_point(point, path, graph, visited):
+    print("Trying", point)
+    # Base case: Point is out of bounds
+    if point[0] < 0 or point[0] > len(graph[0])-1:
+        return False
+    if point[1] < 0 or point[1] > len(graph)-1:
+        return False
 
-    visited[point[1]][point[0]] = 'X'
+    pipe_at_point = graph[point[1]][point[0]]
+    previous_point = False
+    previous_pipe = False
+    if len(path) > 0:
+        previous_point = path[-1]
+        previous_pipe = graph[previous_point[1]][previous_point[0]]
 
-    if pipe == '-' or '7' or 'J' or 'S':
-        if point[0] > 0:
-            stack.append((point[0]-1, point[1]))
-            find_loop_length(stack, graph, visited)
-    if pipe == '-' or 'L' or 'F' or 'S':
-        if point[0] < len(graph[0])-1:
-            stack.append((point[0]+1, point[1]))
-            find_loop_length(stack, graph, visited)
-    if pipe == '|' or 'L' or 'J' or 'S':
-        if point[1] > 0:
-            stack.append((point[0], point[1]-1))
-            find_loop_length(stack, graph, visited)
-    if pipe == '|' or '7' or 'F' or 'S':
-        if point[1] < len(graph)-1:
-            stack.append((point[0], point[1]+1))
-            find_loop_length(stack, graph, visited)
+    # Base cases for returning:
+    # Pipe is invalid
+    if pipe_at_point == '.':
+        return False
+    if point in visited:
+        difference = len(path)-1 - visited[point]
+        # if point was JUST visited (diff of 1)
+        if difference == 1:
+            return False
+        # reached back to the start (larger than 1 AND pipe is an S)
+        elif difference > 1 and pipe_at_point == 'S':
+            return True
+        # visited before (larger than 1)
+        elif difference > 1 and pipe_at_point != 'S':
+            return False
 
-    print(stack)
+    # Pre-order actions
+    visited[point] = visited[previous_point] + 1 if previous_point in visited else 0
+    print("Pushing", point, pipe_at_point)
+    path.append(point)
 
-    return len(stack)
+    # Recursing steps (but only check applicable directions)
+    directions = []
+    match pipe_at_point:
+        # One problem: this is hard-coded to work on my own maze.
+        # It might not look in the right direction on other mazes
+        case 'S': directions = [(1, 0), (-1, 0), (0, -1), (0, 1)]
+        case '-': directions = [(-1, 0), (1, 0)]
+        case '|': directions = [(0, -1), (0, 1)]
+        case 'L': directions = [(0, -1), (1, 0)]
+        case 'J': directions = [(0, -1), (-1, 0)]
+        case 'F': directions = [(1, 0), (0, 1)]
+        case '7': directions = [(-1, 0), (0, 1)]
+    for dir in directions:
+        if try_point((point[0]+dir[0], point[1]+dir[1]), path, graph, visited):
+            return True
+
+    # Post-order actions
+    path.pop()
+    return False
 
 # Example 1 answer should be 4, example 2 should be 8
-print("example1.txt:")
-print(part1(parse("example1.txt")))
+# print("example1.txt:")
+# print(part1(parse("example1.txt")))
 # print("example2.txt:")
 # print(part1(parse("example2.txt")))
-# print("input.txt:")
-# print(part1(parse("input.txt")))
+
+# Part 1 answer is 6725. The length of the loop is 13450
+print("input.txt:")
+print(part1(parse("input.txt")))
