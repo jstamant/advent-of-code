@@ -32,7 +32,6 @@ def part1(data):
 
 # Recursive function that returns the length of the connected pipe loop.
 def try_point(point, path, graph, visited):
-    print("Trying", point)
     # Base case: Point is out of bounds
     if point[0] < 0 or point[0] > len(graph[0])-1:
         return False
@@ -64,7 +63,6 @@ def try_point(point, path, graph, visited):
 
     # Pre-order actions
     visited[point] = visited[previous_point] + 1 if previous_point in visited else 0
-    print("Pushing", point, pipe_at_point)
     path.append(point)
 
     # Recursing steps (but only check applicable directions)
@@ -87,6 +85,40 @@ def try_point(point, path, graph, visited):
     path.pop()
     return False
 
+
+# We need to find the number of tiles enclosed within the main loop.
+# I was initially going to try doing a pathfinding algorithm, but it
+# turns out that the easiest way is using the Shoelace Theorem and
+# Pick's Theorem. It's easier and faster to calculate the solution
+# than to do a ton of pathfinding.
+def part2(data):
+    # Find starting point
+    start = -1
+    for y in range(len(data)):
+        for x in range(len(data[y])):
+            if data[y][x] == 'S': start = (x, y)
+    print(f"Starting location is at {start}")
+
+    path = []
+    visited = {}
+
+    try_point(start, path, data, visited)
+    print('Length of the path is', len(path))
+
+    # Shoelace formula, here
+    sum = 0
+    for i in range(len(path)):
+        n_1 = path[i]
+        n_2 = path[(i+1)%len(path)]
+        x_1, y_1 = n_1
+        x_2, y_2 = n_2
+        sum += x_1 * y_2 - y_1 * x_2
+    area = abs(sum/2)
+    print("Area", area)
+
+    return area-len(path)/2+1
+
+
 # Example 1 answer should be 4, example 2 should be 8
 # print("example1.txt:")
 # print(part1(parse("example1.txt")))
@@ -94,5 +126,15 @@ def try_point(point, path, graph, visited):
 # print(part1(parse("example2.txt")))
 
 # Part 1 answer is 6725. The length of the loop is 13450
+# print("input.txt:")
+# print(part1(parse("input.txt")))
+
+# Example 1 for part 2 should be 1, example 2 should be 1
+print("example1.txt:")
+print(part2(parse("example1.txt")))
+print("example2.txt:")
+print(part2(parse("example2.txt")))
+
+# Part 2 answer is 383. The area of the loop is 7107.
 print("input.txt:")
-print(part1(parse("input.txt")))
+print(part2(parse("input.txt")))
