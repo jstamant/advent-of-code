@@ -9,21 +9,30 @@ def parse(filename):
     file.close()
     return data
 
-def part1(data):
-    # First, I need to "expand" the map, which is doubling any empty lines
+# I solve this challenge by making a map of distances.
+# Expanded space has a larger number in it, which equates to adding more distance
+def solve(data, factor=2):
+    print("factor of", factor)
+    # First, I need to "expand" the map, which inserts the factor number in the space
     map = []
-    # Add double empty rows
-    for line in data:
-        map.append([*line])
-        if is_empty(line):
-            map.append([*line])
+    for row in range(len(data)):
+        map.append([])
+        empty = False
+        if is_empty(data[row]):
+            empty = True
+        for col in range(len(data[row])):
+            if empty:
+                element = factor
+            else:
+                element = 1 if data[row][col] == '.' else '#'
+            map[row].append(element)
     for col in reversed(range(len(map[0]))):
         empty = True
-        for element in range(len(map)):
-            if map[element][col] != '.':
+        for row in range(len(map)):
+            if map[row][col] == '#':
                 empty = False
         if empty:
-            copy_column(map, col)
+            expand_column(map, col, factor)
 
     # List all galaxies
     galaxies = []
@@ -35,9 +44,9 @@ def part1(data):
     sum = 0
     for galaxy in galaxies:
         for destination in galaxies:
-            distance = abs(destination[0]-galaxy[0]) + abs(destination[1]-galaxy[1])
+            distance = calculate_distance(galaxy, destination, map)
             sum += distance
-    return sum/2
+    return sum
 
 # Returns true if all elements in the list are '.'
 def is_empty(line):
@@ -45,12 +54,31 @@ def is_empty(line):
         if element != '.': return False
     return True
 
-def copy_column(map, index):
+def expand_column(map, index, factor):
     for row in range(len(map)):
-        map[row].insert(index, '.')
+        map[row][index] = factor
 
+def calculate_distance(src, dest, map):
+    if src == dest: return 0
+    dx = 0
+    dy = 0
+    for col in range(src[0], dest[0]):
+        cell = map[src[1]][col+1]
+        value = cell if cell != '#' else 1
+        dx += value
+    for row in range(src[1], dest[1]):
+        cell = map[row][dest[0]]
+        value = cell if cell != '#' else 1
+        dy += value
+    return dx + dy
 
 # Example 1 should be 374
-print(part1(parse("example1.txt")))
+print(solve(parse("example1.txt")))
 # Part 1 answer is 9805264
-print(part1(parse("input.txt")))
+#print(solve(parse("input.txt")))
+
+# Example 1 using part 2 rules should be 1030 for an expansion factor of 10, and 8410 for 100
+print(solve(parse("example1.txt"), 10))
+print(solve(parse("example1.txt"), 100))
+# Part 2 answer is 779032247216
+print(solve(parse("input.txt"), 1000000))
