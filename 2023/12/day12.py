@@ -61,6 +61,8 @@ def unfold(data):
     return new_data
 
 
+# TODO I need to add memoization to optimize
+# TODO or better: I need to operate by number of heads rather than recurse through them all
 def part2(data):
     sum = 0
     for record in data:
@@ -124,5 +126,5 @@ def generate_states(keys):
 
 # Part 2 example should return 525152
 print(part2(unfold(parse("example.txt"))))
-# Part 2 answer should return ???
+# Part 2 answer should return 280382734828319
 print(part2(unfold(parse("input.txt"))))
